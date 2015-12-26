@@ -32,11 +32,11 @@
 
 (defn tree-search
   "General tree search algorithm"
-  [problem, fringe]
+  [problem fringe]
   (let [start (Node. (initial-state problem) [] 0)]
     (loop [f (insert fringe start)]
       (if-not (empty? f)
-        (let [[node new-f] (remove-next f)]
+        (let [[node f] (remove-next f)]
           (cond (is-goal? problem node) node
                 :else (let [s (successors problem node)]
-                        (recur (reduce insert new-f s)))))))))
+                        (recur (reduce insert f s)))))))))
