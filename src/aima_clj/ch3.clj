@@ -18,16 +18,16 @@
 (defn successor
   "Make a successor node from the current node and the next action"
   [problem node action]
-  (let [[s p c] node
-        r (result problem s action)
-        sc (step-cost problem s action)]
-    (Node. r (conj p action) (+ sc c))))
+  (let [[state path cost] node
+        r (result problem state action)
+        sc (step-cost problem state action)]
+    (Node. r (conj path action) (+ sc cost))))
 
 (defn successors
   "The successor nodes of a given node for a problem"
   [problem node]
-  (let [[s p c] node
-        a (actions problem s)]
+  (let [[state path cost] node
+        a (actions problem state)]
     (map (partial problem node) a)))
 
 (defn tree-search
