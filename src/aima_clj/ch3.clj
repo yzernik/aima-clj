@@ -26,8 +26,7 @@
 (defn successors
   "The successor nodes of a given node for a problem"
   [problem node]
-  (let [[state path cost] node
-        a (actions problem state)]
+  (let [a (actions problem (:state node))]
     (map (partial problem node) a)))
 
 (defn tree-search
