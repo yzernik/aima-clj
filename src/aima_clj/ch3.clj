@@ -8,6 +8,10 @@
   (goal? [this state] "Determines whether a given state is a goal state")
   (step-cost [this state action] "The cost of taking an action in a state"))
 
+(extend-type java.lang.Object
+  Problem
+  (step-cost [this state action] 1))
+
 (defprotocol Fringe
   "A strategy for inserting and removing nodes from a fringe"
   (insert [this node] "Insert a new node into the fringe")
@@ -39,3 +43,40 @@
           (cond (goal? problem (:state node)) (:path node)
                 :else (let [s (successors problem node)]
                         (recur (reduce insert f s)))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defrecord NQueensProblem [n]
+  Problem
+  (initial-state [this] (vec (repeat n -1)))
+  (actions [this state] (range n))
+  (result [this state action] action)
+  (goal? [this state] (not (contains? state -1)))
+  (step-cost [this state action] 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defrecord GraphProblem [graph initial goal]
+  Problem
+  (initial-state [this] initial)
+  (actions [this state] (keys (graph state)))
+  (result [this state action] action)
+  (goal? [this state] (= goal state))
+  (step-cost [this state action] ((graph state) action)))
+
+(def romania
+  {\A {\Z 75 \S 140 \T 118}
+   \B {\U 85 \P 101 \G 90 \F 211}
+   \C {\D 120 \R 146 \P 138}
+   \D {\M 75}
+   \E {\H 86}
+   \F {\S 99}
+   \H {\U 98}
+   \I {\V 92 \N 87}
+   \L {\T 111 \M 70}
+   \O {\Z 71 \S 151}
+   \P {\R 97}
+   \R {\S 80}
+   \U {\V 142}})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
