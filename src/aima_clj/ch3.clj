@@ -46,12 +46,29 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn conflict?
+  "Are the two points conflicting"
+  [pos1 pos2]
+  (let [[row1 col1] pos1
+        [row2 col2] pos2]
+    (or (= row1 row2)
+        (= col1 col2)
+        (= (- row1 col1) (- row2 col2))
+        (= (+ row1 col1) (+ row2 col2)))))
+
+(defn valid-column?
+  "Is the column location of the new queen valid"
+  [state col]
+  (let [positions (map-indexed state)
+        new-pos [(count state) col]]
+    (not (some (partial conflict? new-pos) positions))))
+
 (defrecord NQueensProblem [n]
   Problem
-  (initial-state [this] (vec (repeat n -1)))
-  (actions [this state] (range n))
-  (result [this state action] action)
-  (goal? [this state] (not (contains? state -1))))
+  (initial-state [this] [])
+  (actions [this state] (filter (partial valid-column? state) (range n)))
+  (result [this state action] (conj state action))
+  (goal? [this state] (= n (count state))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
