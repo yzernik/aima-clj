@@ -20,7 +20,7 @@
 
   clojure.lang.PersistentQueue
   (insert [this node] (conj this node))
-  (remove-next [this] [(first this) (rest this)]))
+  (remove-next [this] [(peek this) (pop this)]))
 
 (defrecord Node [state path cost])
 
