@@ -30,7 +30,7 @@
   (let [{state :state path :path cost :cost} node
         r (result problem state action)
         sc (step-cost problem state action)]
-    (Node. r (conj path action) (+ sc cost))))
+    (->Node r (conj path action) (+ sc cost))))
 
 (defn- successors
   "The successor nodes of a given node for a problem"
@@ -41,7 +41,7 @@
 (defn tree-search
   "General tree search algorithm"
   [problem fringe]
-  (let [start (Node. (initial-state problem) [] 0)]
+  (let [start (->Node (initial-state problem) [] 0)]
     (loop [f (insert fringe start)]
       (if-not (empty? f)
         (let [[node f] (remove-next f)]
@@ -52,7 +52,7 @@
 (defn graph-search
   "General graph search algorithm"
   [problem fringe]
-  (let [start (Node. (initial-state problem) [] 0)]
+  (let [start (->Node (initial-state problem) [] 0)]
     (loop [f (insert fringe start)
            c #{}]
       (if-not (empty? f)
@@ -103,6 +103,17 @@
   (result [this state action] (conj state action))
   (goal? [this state] (= n (count state)))
   (step-cost [this state action] 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defrecord NQueensProblem [n]
+  Problem
+  (initial-state [this] [])
+  (actions [this state] (filter (partial valid-column? state) (range n)))
+  (result [this state action] (conj state action))
+  (goal? [this state] (= n (count state)))
+  (step-cost [this state action] 1))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
