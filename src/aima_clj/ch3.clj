@@ -51,8 +51,7 @@
   (initial-state [this] (vec (repeat n -1)))
   (actions [this state] (range n))
   (result [this state action] action)
-  (goal? [this state] (not (contains? state -1)))
-  (step-cost [this state action] 1))
+  (goal? [this state] (not (contains? state -1))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
