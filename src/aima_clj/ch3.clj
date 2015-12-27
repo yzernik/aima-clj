@@ -49,6 +49,18 @@
                 :else (let [s (successors problem node)]
                         (recur (reduce insert f s)))))))))
 
+(defn graph-search
+  "General graph search algorithm"
+  [problem fringe]
+  (let [start (Node. (initial-state problem) [] 0)]
+    (loop [f (insert fringe start)
+           c #{}]
+      (if-not (empty? f)
+        (let [[node f] (remove-next f)]
+          (cond (goal? problem (:state node)) (:path node)
+                :else (let [s (successors problem node)]
+                        (recur (reduce insert f s) (conj c node)))))))))
+
 (defn depth-first-tree-search
   [problem]
   (tree-search problem ()))
@@ -56,6 +68,14 @@
 (defn breadth-first-tree-search
   [problem]
   (tree-search problem clojure.lang.PersistentQueue/EMPTY))
+
+(defn depth-first-graph-search
+  [problem]
+  (graph-search problem ()))
+
+(defn breadth-first-graph-search
+  [problem]
+  (graph-search problem clojure.lang.PersistentQueue/EMPTY))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
