@@ -8,26 +8,31 @@
   (goal? [this state] "Determines whether a given state is a goal state")
   (step-cost [this state action] "The cost of taking an action in a state"))
 
-(extend-type java.lang.Object
-  Problem
-  (step-cost [this state action] 1))
-
 (defprotocol Fringe
   "A strategy for inserting and removing nodes from a fringe"
   (insert [this node] "Insert a new node into the fringe")
   (remove-next [this] "Remove the next node from the fringe"))
 
+(extend-protocol Fringe
+  clojure.lang.IPersistentList
+  (insert [this node] (conj this node))
+  (remove-next [this] [(first this) (rest this)])
+
+  clojure.lang.PersistentQueue
+  (insert [this node] (conj this node))
+  (remove-next [this] [(first this) (rest this)]))
+
 (defrecord Node [state path cost])
 
-(defn successor
+(defn- successor
   "Make a successor node from the current node and the next action"
   [problem node action]
-  (let [[state path cost] node
+  (let [{state :state path :path cost :cost} node
         r (result problem state action)
         sc (step-cost problem state action)]
     (Node. r (conj path action) (+ sc cost))))
 
-(defn successors
+(defn- successors
   "The successor nodes of a given node for a problem"
   [problem node]
   (let [a (actions problem (:state node))]
@@ -44,9 +49,17 @@
                 :else (let [s (successors problem node)]
                         (recur (reduce insert f s)))))))))
 
+(defn depth-first-tree-search
+  [problem]
+  (tree-search problem ()))
+
+(defn breadth-first-tree-search
+  [problem]
+  (tree-search problem clojure.lang.PersistentQueue/EMPTY))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn conflict?
+(defn- conflict?
   "Are the two points conflicting"
   [pos1 pos2]
   (let [[row1 col1] pos1
@@ -56,10 +69,10 @@
         (= (- row1 col1) (- row2 col2))
         (= (+ row1 col1) (+ row2 col2)))))
 
-(defn valid-column?
+(defn- valid-column?
   "Is the column location of the new queen valid"
   [state col]
-  (let [positions (map-indexed state)
+  (let [positions (map-indexed vector state)
         new-pos [(count state) col]]
     (not (some (partial conflict? new-pos) positions))))
 
@@ -68,7 +81,8 @@
   (initial-state [this] [])
   (actions [this state] (filter (partial valid-column? state) (range n)))
   (result [this state action] (conj state action))
-  (goal? [this state] (= n (count state))))
+  (goal? [this state] (= n (count state)))
+  (step-cost [this state action] 1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

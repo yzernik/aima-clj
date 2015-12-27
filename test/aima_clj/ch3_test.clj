@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             [aima-clj.ch3 :refer :all]))
 
-(deftest a-test
-  (testing "should be true"
-    (is (= 0 0))))
+(deftest queens
+  (testing "should be correct configuration of queens"
+    (is (= [7 3 0 2 5 1 6 4]
+           (depth-first-tree-search (->NQueensProblem 8))))))
