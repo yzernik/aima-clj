@@ -111,7 +111,6 @@
   (let [f (fn [node] (+ (h (:state node)) (:cost node)))]
     (best-first-graph-search problem f)))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn- conflict?
@@ -206,7 +205,6 @@
   (result [this state action] (move-piece state (action 0) (action 1)))
   (goal? [this state] (solved? state))
   (step-cost [this state action] 1))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
