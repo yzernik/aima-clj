@@ -1,4 +1,5 @@
-(ns aima-clj.ch3)
+(ns aima-clj.ch3
+  (:use clojure.data.priority-map))
 
 (defprotocol Problem
   "An abstract formulation of a search problem"
@@ -12,14 +13,6 @@
   "A strategy for inserting and removing nodes from a fringe"
   (insert [this node] "Insert a new node into the fringe")
   (remove-next [this] "Remove the next node from the fringe"))
-
-(extend-protocol Fringe
-  clojure.lang.IPersistentList
-  (insert [this node] (conj this node))
-  (remove-next [this] [(first this) (rest this)])
-  clojure.lang.PersistentQueue
-  (insert [this node] (conj this node))
-  (remove-next [this] [(peek this) (pop this)]))
 
 (defrecord Node [state path cost])
 
@@ -63,27 +56,47 @@
                 :else (let [s (successors problem node)]
                         (recur (reduce insert f s) (conj c state)))))))))
 
+(defn path-states
+  "Show the intermediate states along the solution path"
+  [problem path]
+  (reductions #(result problem %1 %2) (initial-state problem) path))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(extend-type clojure.lang.IPersistentList
+  Fringe
+  (insert [this node] (conj this node))
+  (remove-next [this] [(first this) (rest this)]))
+
 (defn depth-first-tree-search
   [problem]
   (tree-search problem ()))
-
-(defn breadth-first-tree-search
-  [problem]
-  (tree-search problem clojure.lang.PersistentQueue/EMPTY))
 
 (defn depth-first-graph-search
   [problem]
   (graph-search problem ()))
 
+(extend-type clojure.lang.PersistentQueue
+  Fringe
+  (insert [this node] (conj this node))
+  (remove-next [this] [(peek this) (pop this)]))
+
+(defn breadth-first-tree-search
+  [problem]
+  (tree-search problem clojure.lang.PersistentQueue/EMPTY))
+
 (defn breadth-first-graph-search
   [problem]
   (graph-search problem clojure.lang.PersistentQueue/EMPTY))
 
+(extend-type clojure.data.priority_map.PersistentPriorityMap
+  Fringe
+  (insert [this node] (conj this [node (:cost node)]))
+  (remove-next [this] [(first (peek this)) (pop this)]))
 
-(defn path-states
-  "Show the intermediate states along the solution path"
-  [problem path]
-  (reductions #(result problem %1 %2) (initial-state problem) path))
+(defn uniform-cost-graph-search
+  [problem]
+  (graph-search problem (priority-map)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
