@@ -17,7 +17,6 @@
   clojure.lang.IPersistentList
   (insert [this node] (conj this node))
   (remove-next [this] [(first this) (rest this)])
-
   clojure.lang.PersistentQueue
   (insert [this node] (conj this node))
   (remove-next [this] [(peek this) (pop this)]))
@@ -58,12 +57,11 @@
            c #{}]
       (if-not (empty? f)
         (let [[node f] (remove-next f)
-              {state :state path :path cost :cost} node
-              new-c (conj c state)]
+              {state :state path :path cost :cost} node]
           (cond (goal? problem state) path
-                (c state) (recur f new-c)
+                (c state) (recur f c)
                 :else (let [s (successors problem node)]
-                        (recur (reduce insert f s) new-c))))))))
+                        (recur (reduce insert f s) (conj c state)))))))))
 
 (defn depth-first-tree-search
   [problem]
@@ -80,6 +78,12 @@
 (defn breadth-first-graph-search
   [problem]
   (graph-search problem clojure.lang.PersistentQueue/EMPTY))
+
+
+(defn path-states
+  "Show the intermediate states along the solution path"
+  [problem path]
+  (reductions #(result problem %1 %2) (initial-state problem) path))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
