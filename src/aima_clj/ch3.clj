@@ -93,14 +93,24 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(extend-type clojure.data.priority_map.PersistentPriorityMap
+(defrecord PriorityQueue [q f]
   Fringe
-  (insert [this node] (conj this [node (:cost node)]))
-  (remove-next [this] [(first (peek this)) (pop this)]))
+  (insert [this node] (conj q [node (f node)]))
+  (remove-next [this] [(first (peek q)) (pop q)]))
 
-(defn uniform-cost-graph-search
+(defn best-first-graph-search
+  [problem f]
+  (graph-search problem (->PriorityQueue (priority-map) f)))
+
+(defn uniform-cost-search
   [problem]
-  (graph-search problem (priority-map)))
+  (best-first-graph-search problem (fn [node] (:cost node))))
+
+(defn astar-search
+  [problem h]
+  (let [f (fn [node] (+ (h (:state node)) (:cost node)))]
+    (best-first-graph-search problem f)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
