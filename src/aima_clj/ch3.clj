@@ -44,8 +44,9 @@
   (let [start (->Node (initial-state problem) [] 0)]
     (loop [f (insert fringe start)]
       (if-not (empty? f)
-        (let [[node f] (remove-next f)]
-          (cond (goal? problem (:state node)) (:path node)
+        (let [[node f] (remove-next f)
+              {state :state path :path cost :cost} node]
+          (cond (goal? problem state) path
                 :else (let [s (successors problem node)]
                         (recur (reduce insert f s)))))))))
 
@@ -56,10 +57,13 @@
     (loop [f (insert fringe start)
            c #{}]
       (if-not (empty? f)
-        (let [[node f] (remove-next f)]
-          (cond (goal? problem (:state node)) (:path node)
+        (let [[node f] (remove-next f)
+              {state :state path :path cost :cost} node
+              new-c (conj c state)]
+          (cond (goal? problem state) path
+                (c state) (recur f new-c)
                 :else (let [s (successors problem node)]
-                        (recur (reduce insert f s) (conj c node)))))))))
+                        (recur (reduce insert f s) new-c))))))))
 
 (defn depth-first-tree-search
   [problem]
@@ -106,12 +110,70 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defrecord NQueensProblem [n]
+(def deltas [[1 0] [0 1] [-1 0] [0 -1]])
+
+(defn- pieces
+  [board]
+  (for [i (range (count board))
+        j (range (count (board i)))
+        :when (get-in board [i j])]
+    [i j]))
+
+(defn- add-delta
+  [position delta]
+  (map + position delta))
+
+(defn- on-board?
+  [board position]
+  (not= :off-board
+      (get-in board position :off-board)))
+
+(defn- empty-position?
+  [board position]
+  (not (get-in board position)))
+
+(defn- valid-move?
+  [board position delta]
+  (let [new-pos (add-delta position delta)]
+    (and (on-board? board new-pos)
+         (empty-position? board new-pos))))
+
+(defn- moves
+  [board position]
+  (->> deltas
+       (filter #(valid-move? board position %))
+       (map #(vec [position %]))))
+
+(defn- all-moves
+  [board]
+  (for [position (pieces board)
+        move (moves board position)
+        :when move]
+    move))
+
+(defn- swap-positions
+  [board pos1 pos2]
+  (let [v1 (get-in board pos1)
+        v2 (get-in board pos2)]
+    (-> board
+        (assoc-in pos2 v1)
+        (assoc-in pos1 v2))))
+
+(defn- move-piece
+  [board position delta]
+  (let [other-pos (add-delta position delta)]
+    (swap-positions board position other-pos)))
+
+(defn- solved?
+  [board]
+  (apply < (remove nil? (flatten board))))
+
+(defrecord NPuzzleProblem [board]
   Problem
-  (initial-state [this] [])
-  (actions [this state] (filter (partial valid-column? state) (range n)))
-  (result [this state action] (conj state action))
-  (goal? [this state] (= n (count state)))
+  (initial-state [this] board)
+  (actions [this state] (all-moves state))
+  (result [this state action] (move-piece state (action 0) (action 1)))
+  (goal? [this state] (solved? state))
   (step-cost [this state action] 1))
 
 
