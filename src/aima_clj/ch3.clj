@@ -76,6 +76,8 @@
   [problem]
   (graph-search problem ()))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (extend-type clojure.lang.PersistentQueue
   Fringe
   (insert [this node] (conj this node))
@@ -88,6 +90,8 @@
 (defn breadth-first-graph-search
   [problem]
   (graph-search problem clojure.lang.PersistentQueue/EMPTY))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (extend-type clojure.data.priority_map.PersistentPriorityMap
   Fringe
