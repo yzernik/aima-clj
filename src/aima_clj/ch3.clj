@@ -37,7 +37,7 @@
     (loop [f (insert fringe start)]
       (if-not (empty? f)
         (let [[node f] (remove-next f)
-              {state :state path :path cost :cost} node]
+              {state :state path :path} node]
           (cond (goal? problem state) path
                 :else (let [s (successors problem node)]
                         (recur (reduce insert f s)))))))))
@@ -50,7 +50,7 @@
            c #{}]
       (if-not (empty? f)
         (let [[node f] (remove-next f)
-              {state :state path :path cost :cost} node]
+              {state :state path :path} node]
           (cond (goal? problem state) path
                 (c state) (recur f c)
                 :else (let [s (successors problem node)]
