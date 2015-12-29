@@ -47,8 +47,8 @@
     (loop [f (insert fringe start)]
       (if-not (empty? f)
         (let [[node f] (remove-next f)]
-          (cond (goal? problem (:state node)) node
-                :else (recur (insert-nodes f (successors problem node)))))))))
+          (if (goal? problem (:state node)) node
+              (recur (insert-nodes f (successors problem node)))))))))
 
 (defn graph-search
   "General graph search algorithm"
