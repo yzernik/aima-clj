@@ -1,5 +1,5 @@
 (ns aima-clj.ch3
-  (:use clojure.data.priority-map))
+  (:require [clojure.data.priority-map :refer [priority-map]]))
 
 (defprotocol Problem
   "An abstract formulation of a search problem"
@@ -105,14 +105,18 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defrecord PriorityQueue [q f]
+(deftype PriorityQueue [q f]
   Fringe
-  (insert [this node] (conj q [node (f node)]))
-  (remove-next [this] [(first (peek q)) (pop q)]))
+  (insert [this node] (PriorityQueue. (conj q [node (f node)]) f))
+  (remove-next [this] [(first (peek q))
+                       (PriorityQueue. (pop q) f)])
+  clojure.lang.Seqable
+  (seq [this]
+    (if-let [s (seq q)] (map first s))))
 
 (defn best-first-graph-search
   [problem f]
-  (graph-search problem (->PriorityQueue (priority-map) f)))
+  (graph-search problem (PriorityQueue. (priority-map) f)))
 
 (defn uniform-cost-search
   [problem]
