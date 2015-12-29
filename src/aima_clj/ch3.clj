@@ -43,26 +43,24 @@
 (defn tree-search
   "General tree search algorithm"
   [problem fringe]
-  (let [start (make-initial-node problem)]
-    (loop [f (insert fringe start)]
-      (if (seq f)
-        (let [[node f] (remove-next f)]
-          (if (goal? problem (:state node)) node
-              (recur (insert-nodes f (successors problem node)))))))))
+  (loop [f (insert fringe (make-initial-node problem))]
+    (if (seq f)
+      (let [[node f] (remove-next f)]
+        (if (goal? problem (:state node)) node
+            (recur (insert-nodes f (successors problem node))))))))
 
 (defn graph-search
   "General graph search algorithm"
   [problem fringe]
-  (let [start (make-initial-node problem)]
-    (loop [f (insert fringe start)
-           c #{}]
-      (if (seq f)
-        (let [[node f] (remove-next f)
-              {state :state} node]
-          (cond (goal? problem state) node
-                (c state) (recur f c)
-                :else (recur (insert-nodes f (successors problem node))
-                             (conj c state))))))))
+  (loop [f (insert fringe (make-initial-node problem))
+         c #{}]
+    (if (seq f)
+      (let [[node f] (remove-next f)
+            {state :state} node]
+        (cond (goal? problem state) node
+              (c state) (recur f c)
+              :else (recur (insert-nodes f (successors problem node))
+                           (conj c state)))))))
 
 (defn path
   "Show the actions along the path of a node"
