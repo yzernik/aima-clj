@@ -45,7 +45,7 @@
   [problem fringe]
   (let [start (make-initial-node problem)]
     (loop [f (insert fringe start)]
-      (if-not (empty? f)
+      (if (seq f)
         (let [[node f] (remove-next f)]
           (if (goal? problem (:state node)) node
               (recur (insert-nodes f (successors problem node)))))))))
@@ -56,7 +56,7 @@
   (let [start (make-initial-node problem)]
     (loop [f (insert fringe start)
            c #{}]
-      (if-not (empty? f)
+      (if (seq f)
         (let [[node f] (remove-next f)
               {state :state} node]
           (cond (goal? problem state) node
