@@ -5,4 +5,4 @@
 (deftest queens
   (testing "should be correct configuration of queens"
     (is (= [7 3 0 2 5 1 6 4]
-           (depth-first-tree-search (->NQueensProblem 8))))))
+           (path (depth-first-tree-search (->NQueensProblem 8)))))))

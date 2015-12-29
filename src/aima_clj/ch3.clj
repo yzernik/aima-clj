@@ -14,52 +14,64 @@
   (insert [this node] "Insert a new node into the fringe")
   (remove-next [this] "Remove the next node from the fringe"))
 
-(defrecord Node [state path cost])
+(defrecord Node [state action parent cost])
 
-(defn- successor
+(defn- make-initial-node
+  "Make the initial node for a problem"
+  [problem]
+  (->Node (initial-state problem) nil nil 0))
+
+(defn- insert-nodes
+  "Insert multiple nodes into a fringe"
+  [fringe nodes]
+  (reduce insert fringe nodes))
+
+(defn- make-successor-node
   "Make a successor node from the current node and the next action"
   [problem node action]
-  (let [{state :state path :path cost :cost} node
+  (let [{state :state parent :parent cost :cost} node
         r (result problem state action)
         sc (step-cost problem state action)]
-    (->Node r (conj path action) (+ sc cost))))
+    (->Node r action node (+ sc cost))))
 
 (defn- successors
   "The successor nodes of a given node for a problem"
   [problem node]
   (let [a (actions problem (:state node))]
-    (map (partial successor problem node) a)))
+    (map (partial make-successor-node problem node) a)))
 
 (defn tree-search
   "General tree search algorithm"
   [problem fringe]
-  (let [start (->Node (initial-state problem) [] 0)]
+  (let [start (make-initial-node problem)]
     (loop [f (insert fringe start)]
       (if-not (empty? f)
-        (let [[node f] (remove-next f)
-              {state :state path :path} node]
-          (cond (goal? problem state) path
-                :else (let [s (successors problem node)]
-                        (recur (reduce insert f s)))))))))
+        (let [[node f] (remove-next f)]
+          (cond (goal? problem (:state node)) node
+                :else (recur (insert-nodes f (successors problem node)))))))))
 
 (defn graph-search
   "General graph search algorithm"
   [problem fringe]
-  (let [start (->Node (initial-state problem) [] 0)]
+  (let [start (make-initial-node problem)]
     (loop [f (insert fringe start)
            c #{}]
       (if-not (empty? f)
         (let [[node f] (remove-next f)
-              {state :state path :path} node]
-          (cond (goal? problem state) path
+              {state :state} node]
+          (cond (goal? problem state) node
                 (c state) (recur f c)
-                :else (let [s (successors problem node)]
-                        (recur (reduce insert f s) (conj c state)))))))))
+                :else (recur (insert-nodes f (successors problem node))
+                             (conj c state))))))))
 
-(defn path-states
-  "Show the intermediate states along the solution path"
-  [problem path]
-  (reductions #(result problem %1 %2) (initial-state problem) path))
+(defn path
+  "Show the actions along the path of a node"
+  [node]
+  (loop [n node
+         p ()]
+    (if-not (:action n)
+      p
+      (recur (:parent n) (conj p (:action n))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
