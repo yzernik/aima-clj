@@ -111,8 +111,7 @@
   (remove-next [this] [(first (peek q))
                        (PriorityQueue. (pop q) f)])
   clojure.lang.Seqable
-  (seq [this]
-    (if-let [s (seq q)] (map first s))))
+  (seq [this] (seq q)))
 
 (defn best-first-graph-search
   [problem f]
