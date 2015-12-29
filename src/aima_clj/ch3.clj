@@ -21,11 +21,6 @@
   [problem]
   (->Node (initial-state problem) nil nil 0))
 
-(defn- insert-nodes
-  "Insert multiple nodes into a fringe"
-  [fringe nodes]
-  (reduce insert fringe nodes))
-
 (defn- make-successor-node
   "Make a successor node from the current node and the next action"
   [problem node action]
@@ -39,6 +34,11 @@
   [problem node]
   (let [a (actions problem (:state node))]
     (map (partial make-successor-node problem node) a)))
+
+(defn- insert-nodes
+  "Insert multiple nodes into a fringe"
+  [fringe nodes]
+  (reduce insert fringe nodes))
 
 (defn tree-search
   "General tree search algorithm"
@@ -69,7 +69,7 @@
   [node]
   (loop [n node
          p ()]
-    (if-not (:action n)
+    (if-not (:parent n)
       p
       (recur (:parent n) (conj p (:action n))))))
 
