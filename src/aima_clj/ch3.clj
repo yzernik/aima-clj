@@ -10,7 +10,7 @@
   (step-cost [this state action] "The cost of taking an action in a state"))
 
 (defprotocol Fringe
-  "A strategy for inserting and removing nodes from a fringe"
+  "A queue for storing unexplored nodes"
   (insert [this node] "Insert a new node into the fringe")
   (remove-next [this] "Remove the next node from the fringe"))
 
