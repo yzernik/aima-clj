@@ -1,5 +1,5 @@
 (ns aima-clj.ch3
-  (:require [clojure.data.priority-map :refer [priority-map]]))
+  (:require [clojure.data.priority-map :refer :all]))
 
 (defprotocol Problem
   "An abstract formulation of a search problem"
@@ -78,13 +78,14 @@
   (insert [this node] (conj this node))
   (remove-next [this] [(first this) (rest this)]))
 
-(defn depth-first-tree-search
-  [problem]
-  (tree-search problem ()))
+(defn- make-stack []
+  ())
 
-(defn depth-first-graph-search
-  [problem]
-  (graph-search problem ()))
+(defn depth-first-tree-search [problem]
+  (tree-search problem (make-stack)))
+
+(defn depth-first-graph-search [problem]
+  (graph-search problem (make-stack)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -93,34 +94,32 @@
   (insert [this node] (conj this node))
   (remove-next [this] [(peek this) (pop this)]))
 
-(defn breadth-first-tree-search
-  [problem]
-  (tree-search problem clojure.lang.PersistentQueue/EMPTY))
+(defn- make-queue []
+  clojure.lang.PersistentQueue/EMPTY)
 
-(defn breadth-first-graph-search
-  [problem]
-  (graph-search problem clojure.lang.PersistentQueue/EMPTY))
+(defn breadth-first-tree-search [problem]
+  (tree-search problem (make-queue)))
+
+(defn breadth-first-graph-search [problem]
+  (graph-search problem (make-queue)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(deftype PriorityQueue [q f]
+(extend-type clojure.data.priority_map.PersistentPriorityMap
   Fringe
-  (insert [this node] (PriorityQueue. (conj q [node (f node)]) f))
-  (remove-next [this] [(first (peek q))
-                       (PriorityQueue. (pop q) f)])
-  clojure.lang.Seqable
-  (seq [this] (seq q)))
+  (insert [this node] (conj this [node node]))
+  (remove-next [this] [(first (peek this)) (pop this)]))
 
-(defn best-first-graph-search
-  [problem f]
-  (graph-search problem (PriorityQueue. (priority-map) f)))
+(defn- make-priority-queue [f]
+  (priority-map-keyfn f))
 
-(defn uniform-cost-search
-  [problem]
+(defn best-first-graph-search [problem f]
+  (graph-search problem (make-priority-queue f)))
+
+(defn uniform-cost-search [problem]
   (best-first-graph-search problem (fn [node] (:cost node))))
 
-(defn astar-search
-  [problem h]
+(defn astar-search [problem h]
   (let [f (fn [node] (+ (h (:state node)) (:cost node)))]
     (best-first-graph-search problem f)))
 
