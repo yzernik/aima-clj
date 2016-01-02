@@ -121,6 +121,9 @@
 (defn uniform-cost-search [problem]
   (best-first-graph-search problem (fn [node] (:cost node))))
 
+(defn greedy-best-first-search [problem h]
+  (best-first-graph-search problem (fn [node] (h (:state node)))))
+
 (defn astar-search [problem h]
   (let [f (fn [node] (+ (h (:state node)) (:cost node)))]
     (best-first-graph-search problem f)))
