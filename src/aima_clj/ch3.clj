@@ -9,11 +9,6 @@
   (goal? [this state] "Determines whether a given state is a goal state")
   (step-cost [this state action] "The cost of taking an action in a state"))
 
-(defprotocol Fringe
-  "A queue for storing unexplored nodes"
-  (insert [this node] "Insert a new node into the fringe")
-  (remove-next [this] "Remove the next node from the fringe"))
-
 (defrecord Node [state action parent cost])
 
 (defn- make-initial-node
@@ -34,6 +29,22 @@
   [problem node]
   (let [a (actions problem (:state node))]
     (map (partial make-successor-node problem node) a)))
+
+(defn path
+  "Show the actions along the path of a node"
+  [node]
+  (loop [n node
+         p ()]
+    (if-not (:parent n)
+      p
+      (recur (:parent n) (conj p (:action n))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defprotocol Fringe
+  "A queue for storing unexplored nodes"
+  (insert [this node] "Insert a new node into the fringe")
+  (remove-next [this] "Remove the next node from the fringe"))
 
 (defn- insert-nodes
   "Insert multiple nodes into a fringe"
@@ -61,15 +72,6 @@
               (c state) (recur f c)
               :else (recur (insert-nodes f (successors problem node))
                            (conj c state)))))))
-
-(defn path
-  "Show the actions along the path of a node"
-  [node]
-  (loop [n node
-         p ()]
-    (if-not (:parent n)
-      p
-      (recur (:parent n) (conj p (:action n))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
