@@ -73,7 +73,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(extend-type clojure.lang.IPersistentList
+(extend-type clojure.lang.PersistentList
   Fringe
   (insert [this node] (conj this node))
   (remove-next [this] [(first this) (rest this)]))
