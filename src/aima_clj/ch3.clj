@@ -132,20 +132,18 @@
 
 (defn- conflict?
   "Are the two points conflicting"
-  [pos1 pos2]
-  (let [[row1 col1] pos1
-        [row2 col2] pos2]
-    (or (= row1 row2)
-        (= col1 col2)
-        (= (- row1 col1) (- row2 col2))
-        (= (+ row1 col1) (+ row2 col2)))))
+  [[row1 col1] [row2 col2]]
+  (or (= row1 row2)
+      (= col1 col2)
+      (= (- row1 col1) (- row2 col2))
+      (= (+ row1 col1) (+ row2 col2))))
 
 (defn- valid-column?
   "Is the column location of the new queen valid"
   [state col]
   (let [positions (map-indexed vector state)
         new-pos [(count state) col]]
-    (not (some (partial conflict? new-pos) positions))))
+    (not-any? (partial conflict? new-pos) positions)))
 
 (defrecord NQueensProblem [n]
   Problem
